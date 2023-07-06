@@ -34,8 +34,7 @@
 
 /** Macros for creating and running tests */
 #define TEST(name, description, testfunction) unipp::UnitTest(name, description, testfunction)
-#define SUITE(name, description, ...) \
-      unipp::TestSuite(name, description, unipp::SetupAndTeardownType::NONE, __VA_ARGS__)
+#define SUITE(name, description, ...) unipp::TestSuite(name, description, __VA_ARGS__)
 #define RUN(...) unipp::TestRunner::RunAll(__VA_ARGS__)
 
 
@@ -72,6 +71,23 @@ namespace unipp
 
             UnitTest(std::string name, std::string description, TestFunction test)
                   : name(name), description(description), test(test) {}
+
+            /**
+             * @brief Runs the test
+             */
+            void Run()
+            {
+                  std::cout << "   [+] Running test: " << name << std::endl;
+                  std::cout << "   [+] Description: " << description << std::endl;
+
+                  try {
+                        test();
+                        std::cout << "      [√] PASSED!" << std::endl << std::endl;
+                  }
+                  catch (const std::exception& e) {
+                        std::cout << "      [X] FAILED: " << e.what() << std::endl << std::endl;
+                  }
+            }
       };
 
 
@@ -93,13 +109,11 @@ namespace unipp
              * @tparam Tests
              * @param name
              * @param description
-             * @param setup_type
              * @param tests
              */
             template<typename... Tests>
-            TestSuite(std::string name, std::string description, 
-                      SetupAndTeardownType setup_type = SetupAndTeardownType::PER_TEST, Tests... tests)
-                      : name_(name), description_(description), setup_type_(setup_type)
+            TestSuite(std::string name, std::string description, Tests... tests)
+                      : name_(name), description_(description)
             {
                   AddTests(tests...);
             }
@@ -117,35 +131,14 @@ namespace unipp
 
             /**
              * @brief Run the tests in the suite.
-             *
-             *        Setup and teardown behavior is controlled by the setup_type.
-             *
-             *        The setup type indicates if the setup and teardown procedures
-             *        are performed before and after each test or only once before
-             *        and after the suite.
-             *
-             *        This may reduce overhead if the setup and teardown procedures
-             *        are expensive, but can lead to unexpected results if the tests
-             *        in the suite depend on each other.
-             *
-             *        Check the SetupAndTeardownType enum for more information.
              */
             void Run()
             {
                   std::cout << "[SUITE | " << this->name_ << " | " << this->description_ << "]" << std::endl;
-
                   for (auto test : tests_) {
-                        std::cout << "   [+] Running test: " << test.name << std::endl;
-                        std::cout << "   [+] Description: " << test.description << std::endl;
-
-                        try {
-                              test.test();
-                              std::cout << "      [√] PASSED!" << std::endl << std::endl;
-                        }
-                        catch (const std::exception& e) {
-                              std::cout << "      [X] FAILED: " << e.what() << std::endl << std::endl;
-                        }
+                        test.Run();
                   }
+                  std::cout << "[END SUITE]" << std::endl << std::endl;
             }
       private:
             std::string name_;
@@ -209,26 +202,12 @@ namespace unipp
             template<typename... Tests>
             static void RunAll(UnitTest test, Tests... tests)
             {
-                  RunTest(test);
+                  test.Run();
                   RunAll(tests...);
             }
             
       private:
             TestRunner() {}
-
-            static void RunTest(UnitTest test)
-            {
-                  std::cout << "[+] Running individual test: " << test.name << std::endl;
-                  std::cout << "[+] Description: " << test.description << std::endl;
-
-                  try {
-                        test.test();
-                        std::cout << "   [√] PASSED!" << std::endl << std::endl;
-                  }
-                  catch (const std::exception& e) {
-                        std::cout << "   [X] FAILED: " << e.what() << std::endl << std::endl;
-                  }
-            }
       };
 }
 
