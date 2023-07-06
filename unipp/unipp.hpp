@@ -30,13 +30,11 @@
 
 /** MACROS */
 #define UNIPP_TEST_FRAMEWORK_VERSION "0.1.0"
-#define VOID []() -> void {}
 
 /** Macros for creating and running tests */
 #define TEST(name, description, testfunction) unipp::UnitTest(name, description, testfunction)
 #define SUITE(name, description, ...) unipp::TestSuite(name, description, __VA_ARGS__)
 #define RUN(...) unipp::TestRunner::RunAll(__VA_ARGS__)
-
 
 /** Macros for testing assertions */
 /** These stand out in your testing code */
