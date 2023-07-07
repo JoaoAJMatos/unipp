@@ -101,10 +101,19 @@ namespace unipp
       typedef std::function<void()> TestFunction;
 
       /** Structs */
-      typedef struct {
+      struct BenchmarkResult {
             std::chrono::milliseconds total;
             std::chrono::milliseconds average;
-      } BenchmarkResult;
+
+            BenchmarkResult(std::chrono::milliseconds total, std::chrono::milliseconds average)
+                  : total(total), average(average) {}
+
+            void Show()
+            {
+                  std::cout << "   [BENCHMARK] Total time: " << total.count() << "ms" << std::endl;
+                  std::cout << "   [BENCHMARK] Average time: " << average.count() << "ms" << std::endl;
+            }
+      };
 
       /**
        * @brief Defines a unit test
@@ -253,7 +262,6 @@ namespace unipp
        */
       BenchmarkResult Benchmark(TestFunction test, int iterations)
       {
-            BenchmarkResult result;
             std::chrono::milliseconds total_time = std::chrono::milliseconds(0);
 
             for (int i = 0; i < iterations; i++) {
@@ -263,8 +271,7 @@ namespace unipp
                   total_time += std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
             }
 
-            result.total = total_time;
-            result.average = std::chrono::duration_cast<std::chrono::milliseconds>(total_time / iterations);
+            BenchmarkResult result(total_time, total_time / iterations);
             return result;
       }
 
