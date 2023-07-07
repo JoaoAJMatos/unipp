@@ -60,20 +60,18 @@ namespace unipp
       /** Type definitions */
       typedef std::function<void()> TestFunction;
 
+      /** Structs */
       typedef struct {
             long long total;
             long long average;
       } BenchmarkResult;
 
-      /** 
-       * @brief UnitTest struct.
-       *        Represents a unit test
-       */
+
       struct UnitTest
       {
-            std::string name;         // Name of the test
-            std::string description;  // Description of the test
-            TestFunction test;        // The function that performs the test
+            std::string name;         
+            std::string description;
+            TestFunction test;
 
             UnitTest(std::string name, std::string description, TestFunction test)
                   : name(name), description(description), test(test) {}
@@ -97,14 +95,11 @@ namespace unipp
       };
 
 
-      
       class TestSuite
       {
       public:
             /**
              * @brief Construct a new Test Suite object
-             *        This constructor accepts an infinite number of tests.
-             *        Useful for creatig suites in a readable format using the SUITE macro:
              *
              *        SUITE("My Suite", "This is a suite description", PER_TEST,
              *              TEST("My Test", "This is a test description", []() { ... }),
@@ -164,9 +159,7 @@ namespace unipp
             static void RunAll() { }
 
             /**
-             * @brief Run all the test suites.
-             *        This function accepts an infinite number of test suites.
-             *        Useful for running all the test suites in a readable format using the RUN macro:
+             * @brief Variadic template for running SUITES.
              *
              *        RUN(
              *              SUITE("My Suite", "This is a suite description",
@@ -192,15 +185,12 @@ namespace unipp
             }
 
             /**
-             * @brief Run all the individual tests.
-             *        This function accepts an infinite number of tests.
-             *        Useful for running all the tests in a readable format using the RUN_ALL macro:
+             * @brief Variadic template for running TESTS.
              *
              *        RUN(
              *              TEST("My Test", "This is a test description", []() { ... }),
              *              TEST("My Test 2", "This is a test description", []() { ... })
              *        );
-             *
              *
              * @tparam Tests
              * @param suites
