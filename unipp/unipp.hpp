@@ -31,6 +31,10 @@
 /** MACROS */
 #define UNIPP_TEST_FRAMEWORK_VERSION "0.1.0"
 
+#if defined(__APPLE__)
+#define inline __attribute__((always_inline))
+#endif // __APPLE__
+
 /** Macros for creating and running tests */
 #define TEST(name, description, testfunction) unipp::UnitTest(name, description, testfunction)
 #define SUITE(name, description, ...) unipp::TestSuite(name, description, __VA_ARGS__)
@@ -42,53 +46,54 @@
 
 /** Macros for testing assertions */
 /** These stand out in your testing code */
-#define PANIC(msg) throw unipp::Fail(msg)
-#define WARNING(msg) throw unipp::Warning(msg)
-#define ASSERT_EQUAL(a, b, msg) if ((a) != (b)) PANIC(msg)
-#define ASSERT_NOT_EQUAL(a, b, msg) if ((a) == (b)) PANIC(msg)
-#define ASSERT_GREATER(a, b, msg) if ((a) <= (b)) PANIC(msg)
-#define ASSERT_GREATER_EQUAL(a, b, msg) if ((a) < (b)) PANIC(msg)
-#define ASSERT_LESS(a, b, msg) if ((a) >= (b)) PANIC(msg)
-#define ASSERT_LESS_EQUAL(a, b, msg) if ((a) > (b)) PANIC(msg)
-#define ASSERT_TRUE(expr, msg) if (!(expr)) PANIC(msg)
-#define ASSERT_FALSE(expr, msg) if ((expr)) PANIC(msg)
-#define ASSERT_NULL(expr, msg) if ((expr) != nullptr) PANIC(msg)
-#define ASSERT_NOT_NULL(expr, msg) if ((expr) == nullptr) PANIC(msg)
-#define EXPECT_EQUAL(a, b, msg) if ((a) != (b)) WARNING(msg)
-#define EXPECT_NOT_EQUAL(a, b, msg) if ((a) == (b)) WARNING(msg)
-#define EXPECT_GREATER(a, b, msg) if ((a) <= (b)) WARNING(msg)
-#define EXPECT_GREATER_EQUAL(a, b, msg) if ((a) < (b)) WARNING(msg)
-#define EXPECT_LESS(a, b, msg) if ((a) >= (b)) WARNING(msg)
-#define EXPECT_LESS_EQUAL(a, b, msg) if ((a) > (b)) WARNING(msg)
-#define EXPECT_TRUE(expr, msg) if (!(expr)) WARNING(msg)
-#define EXPECT_FALSE(expr, msg) if ((expr)) WARNING(msg)
-#define EXPECT_NULL(expr, msg) if ((expr) != nullptr) WARNING(msg)
-#define EXPECT_NOT_NULL(expr, msg) if ((expr) == nullptr) WARNING(msg)
+#define BASE_ASSERT try {
+#define END_ASSERT                              \
+      std::cout << "      [√] PASSED" << std::endl << std::endl; \
+      }                                         \
+      catch (const std::exception& e)           \
+      {                                         \
+            std::cout << "      [X] FAILED: " << e.what() << std::endl; \
+            return;                             \
+      }                                         \
+
+#define BASE_EXPECT try {
+#define END_EXPECT                              \
+      std::cout << "      [√] PASSED" << std::endl << std::endl; \
+      }                                         \
+      catch (const std::exception& e)           \
+      {                                         \
+            std::cout << "      [!] WARNING: " << e.what() << std::endl; \
+      }                                         \
+
+#define ASSERT(...) BASE_ASSERT __VA_ARGS__ END_ASSERT
+#define EXPECT(...) BASE_EXPECT __VA_ARGS__ END_EXPECT
+
+#define ASSERT_EQUAL(a, b, msg) ASSERT(unipp::Equal(a, b, msg);)
+#define ASSERT_NOT_EQUAL(a, b, msg) ASSERT(unipp::NotEqual(a, b, msg);)
+#define ASSERT_GREATER(a, b, msg) ASSERT(unipp::Greater(a, b, msg);)
+#define ASSERT_GREATER_EQUAL(a, b, msg) ASSERT(unipp::GreaterEqual(a, b, msg);)
+#define ASSERT_LESS(a, b, msg) ASSERT(unipp::Less(a, b, msg);)
+#define ASSERT_LESS_EQUAL(a, b, msg) ASSERT(unipp::LessEqual(a, b, msg);)
+#define ASSERT_TRUE(a, msg) ASSERT(unipp::True(a, msg);)
+#define ASSERT_FALSE(a, msg) ASSERT(unipp::False(a, msg);)
+#define ASSERT_NULL(a, msg) ASSERT(unipp::Null(a, msg);)
+#define ASSERT_NOT_NULL(a, msg) ASSERT(unipp::NotNull(a, msg);)
+#define EXPECT_EQUAL(a, b, msg) EXPECT(unipp::Equal(a, b, msg);)
+#define EXPECT_NOT_EQUAL(a, b, msg) EXPECT(unipp::NotEqual(a, b, msg);)
+#define EXPECT_GREATER(a, b, msg) EXPECT(unipp::Greater(a, b, msg);)
+#define EXPECT_GREATER_EQUAL(a, b, msg) EXPECT(unipp::GreaterEqual(a, b, msg);)
+#define EXPECT_LESS(a, b, msg) EXPECT(unipp::Less(a, b, msg);)
+#define EXPECT_LESS_EQUAL(a, b, msg) EXPECT(unipp::LessEqual(a, b, msg);)
+#define EXPECT_TRUE(a, msg) EXPECT(unipp::True(a, msg);)
+#define EXPECT_FALSE(a, msg) EXPECT(unipp::False(a, msg);)
+#define EXPECT_NULL(a, msg) EXPECT(unipp::Null(a, msg);)
+#define EXPECT_NOT_NULL(a, msg) EXPECT(unipp::NotNull(a, msg);)
 
 
 namespace unipp
 {
       /** Type definitions */
       typedef std::function<void()> TestFunction;
-
-      /** Exceptions */
-      class Warning : public std::exception
-      {
-      public:
-            Warning(std::string msg) : msg(msg) {}
-            const char* what() const throw() { return msg.c_str(); }
-      private:
-            std::string msg;
-      };
-
-      class Fail : public std::exception
-      {
-      public:
-            Fail(std::string msg) : msg(msg) {}
-            const char* what() const throw() { return msg.c_str(); }
-      private:
-            std::string msg;
-      };
 
       /** Structs */
       typedef struct {
@@ -113,19 +118,9 @@ namespace unipp
              */
             void Run()
             {
-                  std::cout << "   [+] Running test: " << name << std::endl;
+                  std::cout << "   [TEST] Running test: " << name << std::endl;
                   std::cout << "   [+] Description: " << description << std::endl;
-
-                  try {
-                        test();
-                        std::cout << "      [√] PASSED!" << std::endl << std::endl;
-                  }
-                  catch (Warning& e) {
-                        std::cout << "      [!] WARNING: " << e.what() << std::endl << std::endl;
-                  }
-                  catch (Fail& e) {
-                        std::cout << "      [X] FAILED: " << e.what() << std::endl << std::endl;
-                  }
+                  test();
             }
       };
 
@@ -266,6 +261,85 @@ namespace unipp
             result.total = total_time.count();
             result.average = total_time.count() / iterations;
             return result;
+      }
+
+      /** Inline functions */
+      template<typename T>
+      inline void Equal(T a, T b, std::string message = "")
+      {
+            if (a != b) {
+                  throw std::runtime_error(message);
+            }
+      }
+
+      template<typename T>
+      inline void NotEqual(T a, T b, std::string message = "")
+      {
+            if (a == b) {
+                  throw std::runtime_error(message);
+            }
+      }
+
+      template<typename T>
+      inline void Greater(T a, T b, std::string message = "")
+      {
+            if (a <= b) {
+                  throw std::runtime_error(message);
+            }
+      }
+
+      template<typename T>
+      inline void GreaterEqual(T a, T b, std::string message = "")
+      {
+            if (a < b) {
+                  throw std::runtime_error(message);
+            }
+      }
+
+      template<typename T>
+      inline void Less(T a, T b, std::string message = "")
+      {
+            if (a >= b) {
+                  throw std::runtime_error(message);
+            }
+      }
+
+      template<typename T>
+      inline void LessEqual(T a, T b, std::string message = "")
+      {
+            if (a > b) {
+                  throw std::runtime_error(message);
+            }
+      }
+
+      template<typename T>
+      inline void Null(T a, std::string message = "")
+      {
+            if (a != nullptr) {
+                  throw std::runtime_error(message);
+            }
+      }
+
+      template<typename T>
+      inline void NotNull(T a, std::string message = "")
+      {
+            if (a == nullptr) {
+                  throw std::runtime_error(message);
+            }
+      }
+
+      inline void True(bool a, std::string message = "")
+      {
+            if (!a) {
+                  throw std::runtime_error(message);
+            }
+      }
+
+      inline void False(bool a, std::string message = "")
+      {
+            if (a) {
+                  throw std::runtime_error(message);
+            }
       }
 }
 
