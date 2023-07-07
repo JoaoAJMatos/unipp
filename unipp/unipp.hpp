@@ -42,8 +42,8 @@
 
 /** Macros for testing assertions */
 /** These stand out in your testing code */
-#define PANIC(msg) throw Fail(msg)
-#define WARNING(msg) throw Warning(msg)
+#define PANIC(msg) throw unipp::Fail(msg)
+#define WARNING(msg) throw unipp::Warning(msg)
 #define ASSERT_EQUAL(a, b, msg) if ((a) != (b)) PANIC(msg)
 #define ASSERT_NOT_EQUAL(a, b, msg) if ((a) == (b)) PANIC(msg)
 #define ASSERT_GREATER(a, b, msg) if ((a) <= (b)) PANIC(msg)
@@ -71,12 +71,34 @@ namespace unipp
       /** Type definitions */
       typedef std::function<void()> TestFunction;
 
+      /** Exceptions */
+      class Warning : public std::exception
+      {
+      public:
+            Warning(const std::string& msg) : msg_(msg.c_str()) {}
+            const char* what() const noexcept { return msg_; }
+      private:
+            const char *msg_;
+      };
+
+      class Fail : public std::exception
+      {
+      public:
+            Fail(const std::string& msg) : msg_(msg.c_str()) {}
+            const char* what() const noexcept { return msg_; }
+      private:
+            const char *msg_;
+      };
+
       /** Structs */
       typedef struct {
             long long total;
             long long average;
       } BenchmarkResult;
 
+      /**
+       * @brief Defines a unit test
+       */
       struct UnitTest
       {
             std::string name;         
@@ -112,20 +134,6 @@ namespace unipp
 
 
       /** Classes */
-      /** Exceptions */
-      class Warning : public std::exception
-      {
-      public:
-            Warning(const std::string& msg) : std::exception(msg.c_str()) {}
-      };
-
-      class Fail : public std::exception
-      {
-      public:
-            Fail(const std::string& msg) : std::exception(msg.c_str()) {}
-      };
-
-
       class TestSuite
       {
       public:
