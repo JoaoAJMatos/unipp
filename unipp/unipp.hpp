@@ -75,19 +75,19 @@ namespace unipp
       class Warning : public std::exception
       {
       public:
-            Warning(const std::string& msg) : msg_(msg.c_str()) {}
-            const char* what() const noexcept { return msg_; }
+            Warning(std::string msg) : msg(msg) {}
+            const char* what() const throw() { return msg.c_str(); }
       private:
-            const char *msg_;
+            std::string msg;
       };
 
       class Fail : public std::exception
       {
       public:
-            Fail(const std::string& msg) : msg_(msg.c_str()) {}
-            const char* what() const noexcept { return msg_; }
+            Fail(std::string msg) : msg(msg) {}
+            const char* what() const throw() { return msg.c_str(); }
       private:
-            const char *msg_;
+            std::string msg;
       };
 
       /** Structs */
@@ -124,9 +124,6 @@ namespace unipp
                         std::cout << "      [!] WARNING: " << e.what() << std::endl << std::endl;
                   }
                   catch (Fail& e) {
-                        std::cout << "      [X] FAILED: " << e.what() << std::endl << std::endl;
-                  }
-                  catch (std::exception& e) {
                         std::cout << "      [X] FAILED: " << e.what() << std::endl << std::endl;
                   }
             }
