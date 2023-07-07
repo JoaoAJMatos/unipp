@@ -15,7 +15,7 @@ void test()
       // The function should take less than 20 ms to run 1000 times
       ASSERT_LESS(
             BENCHMARK(benchmark_function, 1000).total,
-            20,
+            MILLISECONDS(20),
             "Benchmarking failed"
       );
 }
