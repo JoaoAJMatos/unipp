@@ -42,7 +42,8 @@
 
 /** Macros for testing assertions */
 /** These stand out in your testing code */
-#define PANIC(msg) throw std::runtime_error(msg)
+#define PANIC(msg) throw Fail(msg)
+#define WARNING(msg) throw Warning(msg)
 #define ASSERT_EQUAL(a, b, msg) if ((a) != (b)) PANIC(msg)
 #define ASSERT_NOT_EQUAL(a, b, msg) if ((a) == (b)) PANIC(msg)
 #define ASSERT_GREATER(a, b, msg) if ((a) <= (b)) PANIC(msg)
@@ -53,6 +54,16 @@
 #define ASSERT_FALSE(expr, msg) if ((expr)) PANIC(msg)
 #define ASSERT_NULL(expr, msg) if ((expr) != nullptr) PANIC(msg)
 #define ASSERT_NOT_NULL(expr, msg) if ((expr) == nullptr) PANIC(msg)
+#define EXPECT_EQUAL(a, b, msg) if ((a) != (b)) WARNING(msg)
+#define EXPECT_NOT_EQUAL(a, b, msg) if ((a) == (b)) WARNING(msg)
+#define EXPECT_GREATER(a, b, msg) if ((a) <= (b)) WARNING(msg)
+#define EXPECT_GREATER_EQUAL(a, b, msg) if ((a) < (b)) WARNING(msg)
+#define EXPECT_LESS(a, b, msg) if ((a) >= (b)) WARNING(msg)
+#define EXPECT_LESS_EQUAL(a, b, msg) if ((a) > (b)) WARNING(msg)
+#define EXPECT_TRUE(expr, msg) if (!(expr)) WARNING(msg)
+#define EXPECT_FALSE(expr, msg) if ((expr)) WARNING(msg)
+#define EXPECT_NULL(expr, msg) if ((expr) != nullptr) WARNING(msg)
+#define EXPECT_NOT_NULL(expr, msg) if ((expr) == nullptr) WARNING(msg)
 
 
 namespace unipp
@@ -65,7 +76,6 @@ namespace unipp
             long long total;
             long long average;
       } BenchmarkResult;
-
 
       struct UnitTest
       {
@@ -88,10 +98,31 @@ namespace unipp
                         test();
                         std::cout << "      [√] PASSED!" << std::endl << std::endl;
                   }
-                  catch (const std::exception& e) {
+                  catch (Warning& e) {
+                        std::cout << "      [!] WARNING: " << e.what() << std::endl << std::endl;
+                  }
+                  catch (Fail& e) {
+                        std::cout << "      [X] FAILED: " << e.what() << std::endl << std::endl;
+                  }
+                  catch (std::exception& e) {
                         std::cout << "      [X] FAILED: " << e.what() << std::endl << std::endl;
                   }
             }
+      };
+
+
+      /** Classes */
+      /** Exceptions */
+      class Warning : public std::exception
+      {
+      public:
+            Warning(const std::string& msg) : std::exception(msg.c_str()) {}
+      };
+
+      class Fail : public std::exception
+      {
+      public:
+            Fail(const std::string& msg) : std::exception(msg.c_str()) {}
       };
 
 
