@@ -12,7 +12,6 @@
  * @copyright Copyright (c) 2023
  */
 
-// TODO: Add support for benchmarking
 // TODO: Add different logging levels for failed tests
 // TODO: Maybe add support for custom test suites with custom setup and teardown functions
 
@@ -69,30 +68,32 @@
             WARN_MESSAGE();                     \
       }                                         \
 
-#define ASSERT(...) BEGIN_ASSERT __VA_ARGS__ END_ASSERT
-#define EXPECT(...) BEGIN_EXPECT __VA_ARGS__ END_EXPECT
+#define BASE_ASSERT(...) BEGIN_ASSERT __VA_ARGS__ END_ASSERT
+#define BASE_EXPECT(...) BEGIN_EXPECT __VA_ARGS__ END_EXPECT
 
 /** These stand out in your testing code */
-#define ASSERT_EQUAL(a, b, msg) ASSERT(unipp::Equal(a, b, msg);)
-#define ASSERT_NOT_EQUAL(a, b, msg) ASSERT(unipp::NotEqual(a, b, msg);)
-#define ASSERT_GREATER(a, b, msg) ASSERT(unipp::Greater(a, b, msg);)
-#define ASSERT_GREATER_EQUAL(a, b, msg) ASSERT(unipp::GreaterEqual(a, b, msg);)
-#define ASSERT_LESS(a, b, msg) ASSERT(unipp::Less(a, b, msg);)
-#define ASSERT_LESS_EQUAL(a, b, msg) ASSERT(unipp::LessEqual(a, b, msg);)
-#define ASSERT_TRUE(a, msg) ASSERT(unipp::True(a, msg);)
-#define ASSERT_FALSE(a, msg) ASSERT(unipp::False(a, msg);)
-#define ASSERT_NULL(a, msg) ASSERT(unipp::Null(a, msg);)
-#define ASSERT_NOT_NULL(a, msg) ASSERT(unipp::NotNull(a, msg);)
-#define EXPECT_EQUAL(a, b, msg) EXPECT(unipp::Equal(a, b, msg);)
-#define EXPECT_NOT_EQUAL(a, b, msg) EXPECT(unipp::NotEqual(a, b, msg);)
-#define EXPECT_GREATER(a, b, msg) EXPECT(unipp::Greater(a, b, msg);)
-#define EXPECT_GREATER_EQUAL(a, b, msg) EXPECT(unipp::GreaterEqual(a, b, msg);)
-#define EXPECT_LESS(a, b, msg) EXPECT(unipp::Less(a, b, msg);)
-#define EXPECT_LESS_EQUAL(a, b, msg) EXPECT(unipp::LessEqual(a, b, msg);)
-#define EXPECT_TRUE(a, msg) EXPECT(unipp::True(a, msg);)
-#define EXPECT_FALSE(a, msg) EXPECT(unipp::False(a, msg);)
-#define EXPECT_NULL(a, msg) EXPECT(unipp::Null(a, msg);)
-#define EXPECT_NOT_NULL(a, msg) EXPECT(unipp::NotNull(a, msg);)
+#define ASSERT(condition, message) BASE_ASSERT(unipp::Assert(condition, message);)
+#define ASSERT_EQUAL(a, b, msg) BASE_ASSERT(unipp::Equal(a, b, msg);)
+#define ASSERT_NOT_EQUAL(a, b, msg) BASE_ASSERT(unipp::NotEqual(a, b, msg);)
+#define ASSERT_GREATER(a, b, msg) BASE_ASSERT(unipp::Greater(a, b, msg);)
+#define ASSERT_GREATER_EQUAL(a, b, msg) BASE_ASSERT(unipp::GreaterEqual(a, b, msg);)
+#define ASSERT_LESS(a, b, msg) BASE_ASSERT(unipp::Less(a, b, msg);)
+#define ASSERT_LESS_EQUAL(a, b, msg) BASE_ASSERT(unipp::LessEqual(a, b, msg);)
+#define ASSERT_TRUE(a, msg) BASE_ASSERT(unipp::True(a, msg);)
+#define ASSERT_FALSE(a, msg) BASE_ASSERT(unipp::False(a, msg);)
+#define ASSERT_NULL(a, msg) BASE_ASSERT(unipp::Null(a, msg);)
+#define ASSERT_NOT_NULL(a, msg) BASE_ASSERT(unipp::NotNull(a, msg);)
+#define EXPECT(condition, message) BASE_BASE_EXPECT(unipp::Assert(condition, message);)
+#define EXPECT_EQUAL(a, b, msg) BASE_EXPECT(unipp::Equal(a, b, msg);)
+#define EXPECT_NOT_EQUAL(a, b, msg) BASE_EXPECT(unipp::NotEqual(a, b, msg);)
+#define EXPECT_GREATER(a, b, msg) BASE_EXPECT(unipp::Greater(a, b, msg);)
+#define EXPECT_GREATER_EQUAL(a, b, msg) BASE_EXPECT(unipp::GreaterEqual(a, b, msg);)
+#define EXPECT_LESS(a, b, msg) BASE_EXPECT(unipp::Less(a, b, msg);)
+#define EXPECT_LESS_EQUAL(a, b, msg) BASE_EXPECT(unipp::LessEqual(a, b, msg);)
+#define EXPECT_TRUE(a, msg) BASE_EXPECT(unipp::True(a, msg);)
+#define EXPECT_FALSE(a, msg) BASE_EXPECT(unipp::False(a, msg);)
+#define EXPECT_NULL(a, msg) BASE_EXPECT(unipp::Null(a, msg);)
+#define EXPECT_NOT_NULL(a, msg) BASE_EXPECT(unipp::NotNull(a, msg);)
 
 
 namespace unipp
@@ -276,6 +277,13 @@ namespace unipp
       }
 
       /** Inline functions */
+      inline void Assert(bool condition, std::string message = "")
+      {
+            if (!condition) {
+                  throw std::runtime_error(message);
+            }
+      }
+
       template<typename T>
       inline void Equal(T a, T b, std::string message = "")
       {
