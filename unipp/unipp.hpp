@@ -43,6 +43,7 @@
 /** Macros for benchmarking */
 #define BENCHMARK(function, iterations) unipp::Benchmark(function, iterations)
 #define SECONDS_TO_MILLISECONDS(seconds_count) std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::seconds(seconds_count)).count()
+#define MILLISECONDS(milliseconds_count) std::chrono::milliseconds(milliseconds_count)
 
 /** Macros for assertions */
 #define PASS_MESSAGE() std::cout << "      [√] PASSED" << std::endl << std::endl
@@ -101,8 +102,8 @@ namespace unipp
 
       /** Structs */
       typedef struct {
-            long long total;
-            long long average;
+            std::chrono::milliseconds total;
+            std::chrono::milliseconds average;
       } BenchmarkResult;
 
       /**
@@ -262,8 +263,8 @@ namespace unipp
                   total_time += std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
             }
 
-            result.total = total_time.count();
-            result.average = total_time.count() / iterations;
+            result.total = total_time;
+            result.average = std::chrono::duration_cast<std::chrono::milliseconds>(total_time / iterations);
             return result;
       }
 
