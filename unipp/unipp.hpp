@@ -44,30 +44,34 @@
 #define BENCHMARK(function, iterations) unipp::Benchmark(function, iterations)
 #define SECONDS_TO_MILLISECONDS(seconds_count) std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::seconds(seconds_count)).count()
 
-/** Macros for testing assertions */
-/** These stand out in your testing code */
-#define BASE_ASSERT try {
+/** Macros for assertions */
+#define PASS_MESSAGE() std::cout << "      [√] PASSED" << std::endl << std::endl
+#define FAIL_MESSAGE() std::cout << "      [X] FAILED: " << e.what() << std::endl
+#define WARN_MESSAGE() std::cout << "      [!] WARNING: " << e.what() << std::endl
+
+#define BEGIN_ASSERT try {
 #define END_ASSERT                              \
-      std::cout << "      [√] PASSED" << std::endl << std::endl; \
+      PASS_MESSAGE();                           \
       }                                         \
       catch (const std::exception& e)           \
       {                                         \
-            std::cout << "      [X] FAILED: " << e.what() << std::endl; \
+            FAIL_MESSAGE();                     \
             return;                             \
       }                                         \
 
-#define BASE_EXPECT try {
+#define BEGIN_EXPECT try {
 #define END_EXPECT                              \
-      std::cout << "      [√] PASSED" << std::endl << std::endl; \
+      PASS_MESSAGE();                           \
       }                                         \
       catch (const std::exception& e)           \
       {                                         \
-            std::cout << "      [!] WARNING: " << e.what() << std::endl; \
+            WARN_MESSAGE();                     \
       }                                         \
 
-#define ASSERT(...) BASE_ASSERT __VA_ARGS__ END_ASSERT
-#define EXPECT(...) BASE_EXPECT __VA_ARGS__ END_EXPECT
+#define ASSERT(...) BEGIN_ASSERT __VA_ARGS__ END_ASSERT
+#define EXPECT(...) BEGIN_EXPECT __VA_ARGS__ END_EXPECT
 
+/** These stand out in your testing code */
 #define ASSERT_EQUAL(a, b, msg) ASSERT(unipp::Equal(a, b, msg);)
 #define ASSERT_NOT_EQUAL(a, b, msg) ASSERT(unipp::NotEqual(a, b, msg);)
 #define ASSERT_GREATER(a, b, msg) ASSERT(unipp::Greater(a, b, msg);)
