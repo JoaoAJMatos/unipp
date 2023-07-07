@@ -82,6 +82,24 @@ SUITE("Test Suite", "Test Suite Description",
 );
 ```
 
+## Benchmarking
+
+Unipp also provides a simple benchmarking API. You can define benchmarks using the `BENCHMARK(function, iterations)` macro, which will return a `BenchmarkResult` object containing the average time it took to run the function `iterations` times and the total execution time.
+
+```cpp
+void benchmark_function() {
+    // Do something
+}
+
+int main(void) {
+    unipp::BenchmarkResult result = BENCHMARK(benchmark_function, 1000);
+    printf("Average time: %lld ms\n", result.average);
+    printf("Total time: %lld ms\n", result.total);
+}
+```
+
+You can use this in tests as well, as described in the [examples](examples/) folder.
+
 ## Examples
 
 For some examples on how to use **unipp**, check out the [examples](examples/) folder.
